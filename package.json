@@ -2,9 +2,10 @@
   "name": "tradeking",
   "version": "0.1.0",
   "scripts": {
-    "clean": "rescript clean",
-    "build": "rescript build",
-    "watch": "rescript build -w"
+    "clean": "rescript clean -with-deps",
+    "build": "npx webpack",
+    "watch": "rescript build -w",
+    "serve": "npx webpack serve"
   },
   "keywords": [
     "ReScript"
