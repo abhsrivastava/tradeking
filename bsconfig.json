@@ -1,0 +1,22 @@
+{
+  "name": "tradeking",
+  "version": "0.1.0",
+  "sources": {
+    "dir" : "src",
+    "subdirs" : true
+  },
+  "package-specs": {
+    "module": "es6",
+    "in-source": true
+  },
+  "suffix": ".bs.js",
+  "jsx": {
+    "version": 4,
+    "mode": "classic"
+  },
+  "bs-dependencies": [
+    "@rescript/react",
+    "@glenssl/rescript-fetch"
+  ],
+  "reason": {"react-jsx": 3}
+}
