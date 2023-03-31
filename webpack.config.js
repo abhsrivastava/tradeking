@@ -2,17 +2,15 @@ const path = require('path')
 const outputDir = path.join(__dirname, "build")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const dotenv = require('dotenv').config({
-  path: path.join(__dirname, ".env")
-})
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: "development",
-  watch: "true",
+  watch: true,
   entry: "./src/Index.bs.js",
   output: {
     path: outputDir,
-    filenam: 'index.js'
+    filename: 'index.js'
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -24,9 +22,7 @@ module.exports = {
         {from: './src/images', to: 'images'}
       ]
     }),
-    new webpack.DefinePlugin({
-      "process.env": dotenv.parsed
-    })
+    new Dotenv()
   ],
   module: {
     rules: [
@@ -42,6 +38,6 @@ module.exports = {
       directory: outputDir,
     },
     compress: true,
-    port: 8000
+    port: 8001
   }
 }
