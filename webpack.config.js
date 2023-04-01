@@ -10,6 +10,7 @@ module.exports = {
   entry: "./src/Index.bs.js",
   output: {
     path: outputDir,
+    publicPath: '/',
     filename: 'index.js'
   },
   plugins: [
@@ -33,7 +34,18 @@ module.exports = {
     ]
   },
   devServer: {
-    historyApiFallback: true,
+    historyApiFallback: {
+      index: './index.js',
+      disableDotRule: true,
+      rewrites: [
+        {
+          from: /\.(js|css|svg|png|jpg|json|woff|woff2|ttf)$/,
+          to: function (context) {
+            return context.parsedUrl.pathname.replace(/^\/.*\//, '/');
+          },
+        },
+      ],
+    },
     static: {
       directory: outputDir,
     },

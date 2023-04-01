@@ -27,7 +27,6 @@
     "@glennsl/rescript-fetch": "^0.2.0",
     "@rescript/react": "^0.11.0",
     "bootstrap": "^5.2.3",
-    "build": "^0.1.4",
     "react-bootstrap": "^2.7.2"
   }
 }
