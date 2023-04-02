@@ -35,16 +35,20 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: {
-      index: './index.js',
-      disableDotRule: true,
       rewrites: [
         {
-          from: /\.(js|css|svg|png|jpg|json|woff|woff2|ttf)$/,
-          to: function (context) {
-            return context.parsedUrl.pathname.replace(/^\/.*\//, '/');
-          },
+          from: /^\/detail\/index.js$/,
+          to: function(context) {
+            return 'index.js';
+          }
         },
-      ],
+        {
+          from: /^\/detail\/.*$/,
+          to: function(context) {
+            return 'index.html';
+          }
+        }        
+      ]      
     },
     static: {
       directory: outputDir,

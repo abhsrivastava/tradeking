@@ -7,7 +7,7 @@ let make = () => {
     {
       switch RescriptReactRouter.useUrl().path {
       | list{} => <StockOverview />
-      | list{"detail", symbol} => <StockDetail symbol/>
+      | list{"detail", symbol} => <StockDetail symbol />
       | _ => <PageNotFound />
       }
     }
