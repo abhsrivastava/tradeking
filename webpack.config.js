@@ -50,6 +50,7 @@ module.exports = {
         }        
       ]      
     },
+    hot: true,
     static: {
       directory: outputDir,
     },

@@ -2,3 +2,25 @@ body {
   margin: 0px;
   padding: 0px;
 }
+
+.app-header {
+  width: 100%;
+  display: box;
+}
+
+.horizontal-center {
+  margin: auto auto;
+  width: 50%;
+}
+
+.autocomplete-form-input {
+  background-color: rgba(145, 158, 171, 0.4);
+}
+
+.autocomplete-search-result-list {
+  height: 500px;
+  width: 300px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  cursor: pointer;
+}
