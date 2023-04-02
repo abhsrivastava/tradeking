@@ -1,6 +1,4 @@
-open Fetch
-open Js.Json
-open Belt.Option
+open Util
 
 type stock = {
   description: string,
@@ -14,30 +12,7 @@ type searchResponse = {
   result: array<stock>
 }
 
-let getValue = (json: t, key: string, fn: (t) => option<'a>) : option<'a> => {
-  switch json -> classify {
-  | JSONObject(obj) => 
-    switch obj -> Js.Dict.get(key) {
-    | Some(valueObj) => valueObj -> fn
-    | None => None
-    }
-  | _ => None
-  }
-}
-
-let getString = (json: t, key: string) : string => {
-  json -> getValue(key, decodeString) -> getExn
-}
-
-let getInt = (json: t, key: string): int => {
-  json -> getValue(key, decodeNumber) -> map(Belt.Int.fromFloat) -> getExn
-}
-
-let getArray = (json: t, key: string): array<t> => {
-  json -> getValue(key, decodeArray) -> getExn
-}
-
-let parseResponse = (json: t) : searchResponse => {
+let parseResponse = (json) => {
   {
     count: json -> getInt("count"), 
     result: 
@@ -60,8 +35,9 @@ let removeJunk = (response) => {
     result: newResult
   }
 }
-let getSearchResult = (input: string) : promise<searchResponse> => {
+let getSearchResult = (input) => {
   open Js.Promise2
+  open Fetch
   `${Env.apiUrl}/search?q=${input}&token=${Env.apiKey}`
   -> get 
   -> then (Response.json)
