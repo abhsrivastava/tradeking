@@ -1,3 +1,5 @@
+open ReactIcons
+
 @react.component
 let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
   let columns = ["Name", "Last", "Chg", "Chg%", "High", "Low", "Open", "Pclose"]
@@ -6,6 +8,13 @@ let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
       "text-danger"
     } else {
       "text-success"
+    }
+  }
+  let getIcon = (val: float) => {
+    if val < 0.0 {
+      <BsCaretDownFill />
+    } else {
+      <BsCaretUpFill />
     }
   }
   <div>
@@ -27,8 +36,8 @@ let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
           <tr className="table-row" key={quote.symbol}>
           <th className="row">{quote.symbol -> React.string}</th>
           <td>{quote.current -> Belt.Float.toString -> React.string}</td>
-          <td className={getTextColor(quote.change)}>{quote.change -> Belt.Float.toString -> React.string}</td>
-          <td className={getTextColor(quote.percentChange)}>{quote.percentChange -> Belt.Float.toString-> React.string}</td>
+          <td className={getTextColor(quote.change)}>{quote.change -> Belt.Float.toString -> React.string}{getIcon(quote.change)}</td>
+          <td className={getTextColor(quote.percentChange)}>{quote.percentChange -> Belt.Float.toString-> React.string}{getIcon(quote.percentChange)}</td>
           <td>{quote.dayHigh -> Belt.Float.toString -> React.string}</td>
           <td>{quote.dayLow -> Belt.Float.toString -> React.string}</td>
           <td>{quote.dayOpen -> Belt.Float.toString -> React.string}</td>
