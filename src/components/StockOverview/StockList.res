@@ -17,6 +17,9 @@ let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
       <BsCaretUpFill />
     }
   }
+  let handleClick = (symbol, _) => {
+    RescriptReactRouter.push(`/detail/${symbol}`)
+  }
   <div>
     <table className="table hover mt-5 w-100">
       <thead style={{color: "rgb(79, 89, 102)"}}>
@@ -33,7 +36,7 @@ let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
       {
         quotes 
         -> Belt.Array.map(quote => 
-          <tr className="table-row" key={quote.symbol}>
+          <tr className="table-row" key={quote.symbol} style={{cursor: "pointer"}} onClick={handleClick(quote.symbol)}>
           <th className="row">{quote.symbol -> React.string}</th>
           <td>{quote.current -> Belt.Float.toString -> React.string}</td>
           <td className={getTextColor(quote.change)}>{quote.change -> Belt.Float.toString -> React.string}{getIcon(quote.change)}</td>
