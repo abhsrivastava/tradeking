@@ -20,3 +20,7 @@ let getFloat = (json, key)=> json -> getValue(key, decodeNumber) -> getExn
 let getInt = (json, key) => json -> getValue(key, decodeNumber) -> map(fromFloat) -> getExn
 
 let getArray = (json, key) => json -> getValue(key, decodeArray) -> getExn
+
+let getValueArray = (json, key, fn: (t) => option<'a>) : array<'a>  => json -> getArray(key) -> Belt.Array.map(json => json -> fn -> getExn)
+let getFloatArray = (json, key) => json -> getValueArray(key, decodeNumber)
+let getIntArray = (json, key) => json -> getValueArray(key, x => decodeNumber(x) -> map(fromFloat))
