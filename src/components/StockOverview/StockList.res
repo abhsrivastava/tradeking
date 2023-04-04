@@ -1,7 +1,7 @@
 open ReactIcons
 
 @react.component
-let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
+let make = (~quotes : array<Quote.quote>) => {
   let columns = ["Name", "Last", "Chg", "Chg%", "High", "Low", "Open", "Pclose"]
   let getTextColor = (val: float) : string => {
     if val < 0.0 {

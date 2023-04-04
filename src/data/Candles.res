@@ -1,4 +1,3 @@
-open Js.Json
 open Util
 
 type candleResponseStatus = OK | NO_DATA
@@ -44,7 +43,7 @@ let getResolutionString = (resolution) => {
   }
 }
 
-let parseResponse = (json, symbol) => {
+let parseResponse = (json, symbol) : candleResponse => {
   symbol: symbol,
   closePrices: json -> getFloatArray("c"),
   highPrices: json -> getFloatArray("h"),
@@ -58,21 +57,25 @@ let parseResponse = (json, symbol) => {
 let getCandleForSymbol = (symbol: string, res: resolution) => {
   open Fetch
   open Js.Promise2
-  let dt = Js.Date.make()
-  let to = (dt -> Js.Date.getTime /. 1000.0) -> Js.Math.floor_int
+  let to = (Js.Date.now() /. 1000.0) -> Js.Math.floor_int
+  let weekendFactor = switch Js.Date.make() -> Js.Date.getDay -> Belt.Int.fromFloat {
+  | 6 => 2 // if its saturday return 2 days worth of data
+  | 0 => 3 // if its sunday return 3 days worth of data
+  | _ => 1 // any other day just return 24 hours worth of data
+  }
   let from = switch res {
-  | ONE_MINUTE => to - 24 * 60 * 60 // 24 hours ago
-  | FIVE_MINUTES =>  to - 24 * 60 * 60
-  | FIFTEEN_MINUTES => to - 24 * 60 * 60
-  | THIRTY_MINUTES => to - 24 * 60 * 60
-  | SIXTY_MINUTES => to - 24 * 60 * 60
-  | DAY => to - 7 * 24 * 60 * 60 // one week ago
+  | ONE_MINUTE
+  | FIVE_MINUTES
+  | FIFTEEN_MINUTES
+  | THIRTY_MINUTES
+  | SIXTY_MINUTES => to - (weekendFactor * 24 * 60 * 60) // 3 days ago
+  | DAY => to - ((7 + weekendFactor) * 24 * 60 * 60) // one week ago
   | WEEK => to - 4 * 7 * 24 * 60 * 60 // 4 weeks ago
-  | MONTH => to - 52 * 7 * 24 * 60 * 60 // 52 weeks ago
+  | MONTH => to - 365 * 24 * 60 * 60 // 1 year ago
   }
   
   `${Env.apiUrl}/stock/candle?symbol=${symbol}&resolution=${getResolutionString(res)}&from=${from -> Belt.Int.toString}&to=${to -> Belt.Int.toString}&token=${Env.apiKey}`
   -> get
   -> then (Response.json)
-  -> then (json => parseResponse(json) -> resolve)
+  -> then (json => parseResponse(json, symbol) -> resolve)
 }

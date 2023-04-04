@@ -7,9 +7,10 @@ let make = () => {
   let addToWatchList = (symbol) => {
     setWatchList((wl: array<string>) => wl -> Belt.Array.keep(s => symbol != s) -> Belt.Array.concat([symbol]))
   }
-  let removeFromWatchList = (symbol) => {
-    setWatchList((wl: array<string>) => wl -> Belt.Array.keep(s => symbol != s))
-  }
+  // let removeFromWatchList = (symbol) => {
+  //   setWatchList((wl: array<string>) => wl -> Belt.Array.keep(s => symbol != s))
+  // }
+
   React.useEffect1(() => {
     open Js.Promise2
     watchList 
@@ -24,11 +25,10 @@ let make = () => {
     <Header />
     {
       switch RescriptReactRouter.useUrl().path {
-      | list{} => <StockOverview quotes addToWatchList removeFromWatchList />
+      | list{} => <StockOverview quotes addToWatchList />
       | list{"detail", symbol} => <StockDetail symbol />
       | _ => <PageNotFound />
       }
     }
-    <Footer />
   </div>
 }
