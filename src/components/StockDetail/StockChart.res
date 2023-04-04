@@ -1,22 +1,51 @@
 @react.component
-let make = () => {
+let make = (~symbol, ~chartData) => {
   open ApexCharts
   let options = {
     chart: {
-      id: "basic-bar"
+      chartType: "area",
+      height: 500,
+      width: 500,
+      zoom: {
+        enabled: false
+      }
     },
-  xaxis: {
-    categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-  }}
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: "straight"
+    },
+
+    title: {
+      text: "Fundamental Analysis of Stocks",
+      align: "left"
+    },
+    subtitle: {
+      text: "Price Movements",
+      align: "left"
+    },
+    labels: chartData -> Belt.Array.map(((x, _)) => x),
+    xaxis: {
+      axisType: "datetime",
+    },
+    yaxis: {
+      opposite: true
+    },
+    legend: {
+      horizontalAlign: "left"
+    }
+  }
+  
   let series = [{
-    name: "series-1",
-      data: [30, 40, 45, 50, 49, 60, 70, 91]
+    name: `${symbol}`,
+    data: chartData -> Belt.Array.map(((_, y)) => y)
   }]
 
   <div className="app">
     <div className="row">
-      <div className="mixedChart">
-        <Chart options series type_="bar" width="500px" height="500px" />
+      <div className="mixed-chart">
+        <Chart options series />
       </div>
     </div>
   </div>
