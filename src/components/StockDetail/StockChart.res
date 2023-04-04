@@ -4,8 +4,8 @@ let make = (~symbol, ~chartData) => {
   let options = {
     chart: {
       chartType: "area",
-      height: 500,
-      width: 500,
+      height: 300,
+      width: 300,
       zoom: {
         enabled: false
       }

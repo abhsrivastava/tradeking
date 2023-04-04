@@ -2,7 +2,7 @@
 let make = () => {
   <div className="app-header">
     <div className="display-1 horizontal-center">
-      <img src="../images/TradeKing.png" />
+      <a href="/"><img src="../images/TradeKing.png" /></a>
     </div>
   </div>
 }
