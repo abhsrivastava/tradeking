@@ -12,7 +12,7 @@ let make = (~symbol) => {
   })
   if (chartData -> Js.Array.length > 0) {
     <div>
-      <StockChart symbol chartData />
+      <StockChart />
     </div>
   } else {
     <div style={{width: "100%"}}>
