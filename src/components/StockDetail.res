@@ -2,17 +2,22 @@
 let make = (~symbol) => {
   let (chartData, setChartData) = React.useState(() => [])
   let (duration, setDuration) = React.useState(() => Candles.ONE_DAY)
-  React.useEffect1(() => {
+  let getChartData = () => {
     open Js.Promise2
-    Candles.getCandleForSymbol(symbol, duration)
+    Candles.getCandleForSymbol(symbol, duration, 0)
     -> then (response => response.timeStamps -> Belt.Array.zip(response.closePrices) -> resolve)
-    -> then(recordArray => setChartData(_ => recordArray) -> resolve) 
+    -> then(recordArray => setChartData(_ => recordArray) -> resolve)
+  }
+
+  React.useEffect1(() => {
+    getChartData()
     -> ignore
     None
   }, [duration])
+
   if (chartData -> Js.Array.length > 0) {
     <div>
-      <StockChart symbol chartData setDuration />
+      <StockChart symbol chartData duration setDuration />
     </div>
   } else {
     <div style={{width: "100%"}}>

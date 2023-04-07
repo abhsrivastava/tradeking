@@ -1,6 +1,7 @@
 open Util
 
 type candleResponseStatus = OK | NO_DATA
+let one_day = 24. *. 60. *. 60. *. 1000.
 
 let fromStringCandleResponseStatus = (status: string) => {
   switch status {
@@ -38,21 +39,24 @@ let getResolutionString = (duration: duration) => {
   }
 }
 
-let parseResponse = (json, symbol) : candleResponse => {
-  symbol: symbol,
-  closePrices: json -> getFloatArray("c"),
-  highPrices: json -> getFloatArray("h"),
-  lowPrices: json -> getFloatArray("l"),
-  openPrices: json -> getFloatArray("o"),
-  status: json -> getString("s") -> fromStringCandleResponseStatus,
-  timeStamps: json -> getFloatArray("t") -> Belt.Array.map(f => f *. 1000.), // convert it back to millisecond epoch
-  volumes: json -> getIntArray("v")
-}
+let parseResponse = (json, symbol) : option<candleResponse> => 
+  switch json -> getString("s") -> fromStringCandleResponseStatus {
+  | OK => Some({
+      symbol: symbol,
+      closePrices: json -> getFloatArray("c"),
+      highPrices: json -> getFloatArray("h"),
+      lowPrices: json -> getFloatArray("l"),
+      openPrices: json -> getFloatArray("o"),
+      status: json -> getString("s") -> fromStringCandleResponseStatus,
+      timeStamps: json -> getFloatArray("t") -> Belt.Array.map(f => f *. 1000.), // convert it back to millisecond epoch
+      volumes: json -> getIntArray("v")
+  })
+  | NO_DATA => None
+  }
 
 let calculateToDate = () => {
   let now = Js.Date.now()
   let today = now -> Js.Date.fromFloat
-  let one_day = 24. *. 60. *. 60. *. 1000.
   let lastWeekday = switch today -> Js.Date.getDay -> Belt.Int.fromFloat {
     | 6 => now -. one_day // saturday
     | 1 => now -. (2.0 *. one_day) // sunday
@@ -68,7 +72,6 @@ let calculateToDate = () => {
 }
 
 let calculateFromDate = (toDate: float, duration: duration) => {
-  let one_day = 24. *. 60. *. 60. *. 1000.
   let durationInMs = switch duration {
   | ONE_DAY => one_day
   | ONE_WEEK => 7. *. one_day
@@ -79,14 +82,18 @@ let calculateFromDate = (toDate: float, duration: duration) => {
   toDate -. durationInMs
 }
 
-let getCandleForSymbol = (symbol: string, duration: duration) => {
+let rec getCandleForSymbol = (symbol: string, duration: duration, subtract: int) => {
   open Fetch
   open Js.Promise2
-  let to = calculateToDate()
+  let to = calculateToDate() -. (subtract -> Belt.Int.toFloat *. one_day)
   let from = calculateFromDate(to, duration)
-
   `${Env.apiUrl}/stock/candle?symbol=${symbol}&resolution=${getResolutionString(duration)}&from=${(from /. 1000.) -> Belt.Float.toString}&to=${(to /. 1000.) -> Belt.Float.toString}&token=${Env.apiKey}`
   -> get
   -> then (Response.json)
-  -> then (json => parseResponse(json, symbol) -> resolve)
+  -> then (json => {
+    switch parseResponse(json, symbol) {
+    | Some(resp) => resp -> resolve
+    | None => getCandleForSymbol(symbol, duration, subtract + 1)
+    }
+  })
 }
