@@ -18,6 +18,7 @@ let make = (~symbol) => {
   if (chartData -> Js.Array.length > 0) {
     <div>
       <StockChart symbol chartData duration setDuration />
+      <StockData symbol />
     </div>
   } else {
     <div style={{width: "100%"}}>
