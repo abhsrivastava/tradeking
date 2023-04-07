@@ -15,7 +15,7 @@ let getValue = (json: t, key: string, fn: (t) => option<'a>) : option<'a> => {
 
 let getString = (json, key) => json -> getValue(key, decodeString) -> getExn
 
-let getFloat = (json, key)=> json -> getValue(key, decodeNumber) -> getExn
+let getFloat = (json, key) => json -> getValue(key, decodeNumber) -> getExn -> Js.Float.toFixedWithPrecision(~digits=3) -> Js.Float.fromString
 
 let getInt = (json, key) => json -> getValue(key, decodeNumber) -> map(fromFloat) -> getExn
 

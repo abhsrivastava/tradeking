@@ -1,6 +1,7 @@
 open Util
 
 type candleResponseStatus = OK | NO_DATA
+
 let fromStringCandleResponseStatus = (status: string) => {
   switch status {
   | "ok" => OK
@@ -16,30 +17,24 @@ type candleResponse = {
   lowPrices: array<float>,
   openPrices: array<float>,
   status: candleResponseStatus,
-  timeStamps: array<int>,
+  timeStamps: array<float>,
   volumes: array<int>
 }
 
-type resolution = 
-| ONE_MINUTE 
-| FIVE_MINUTES 
-| FIFTEEN_MINUTES 
-| THIRTY_MINUTES 
-| SIXTY_MINUTES 
-| DAY 
-| WEEK 
-| MONTH
+type duration = 
+| ONE_DAY
+| ONE_WEEK
+| ONE_MONTH
+| ONE_YEAR
+| FIVE_YEARS
 
-let getResolutionString = (resolution) => {
-  switch resolution {
-  | ONE_MINUTE => "1"
-  | FIVE_MINUTES => "5"
-  | FIFTEEN_MINUTES => "15"
-  | THIRTY_MINUTES => "30"
-  | SIXTY_MINUTES => "60"
-  | DAY => "D"
-  | WEEK => "W"
-  | MONTH => "M"
+let getResolutionString = (duration: duration) => {
+  switch duration {
+  | ONE_DAY => "5"
+  | ONE_WEEK => "60"
+  | ONE_MONTH => "D"
+  | ONE_YEAR => "W"
+  | FIVE_YEARS => "M"
   }
 }
 
@@ -50,32 +45,47 @@ let parseResponse = (json, symbol) : candleResponse => {
   lowPrices: json -> getFloatArray("l"),
   openPrices: json -> getFloatArray("o"),
   status: json -> getString("s") -> fromStringCandleResponseStatus,
-  timeStamps: json -> getIntArray("t"),
+  timeStamps: json -> getFloatArray("t") -> Belt.Array.map(f => f *. 1000.), // convert it back to millisecond epoch
   volumes: json -> getIntArray("v")
 }
 
-let getCandleForSymbol = (symbol: string, res: resolution) => {
+let calculateToDate = () => {
+  let now = Js.Date.now()
+  let today = now -> Js.Date.fromFloat
+  let one_day = 24. *. 60. *. 60. *. 1000.
+  let lastWeekday = switch today -> Js.Date.getDay -> Belt.Int.fromFloat {
+    | 6 => now -. one_day // saturday
+    | 1 => now -. (2.0 *. one_day) // sunday
+    | _ => now
+  } -> Js.Date.fromFloat
+  Js.Date.makeWithYMDHMS(
+    ~year = lastWeekday -> Js.Date.getFullYear, 
+    ~month = lastWeekday -> Js.Date.getMonth, 
+    ~date = lastWeekday -> Js.Date.getDate, 
+    ~hours = 23.0, 
+    ~minutes = 59.0, ~seconds = 59.0, 
+    ()) -> Js.Date.getTime 
+}
+
+let calculateFromDate = (toDate: float, duration: duration) => {
+  let one_day = 24. *. 60. *. 60. *. 1000.
+  let durationInMs = switch duration {
+  | ONE_DAY => one_day
+  | ONE_WEEK => 7. *. one_day
+  | ONE_MONTH => 30. *. one_day
+  | ONE_YEAR => 365. *. one_day
+  | FIVE_YEARS => 5. *. 365. *. one_day
+  }
+  toDate -. durationInMs
+}
+
+let getCandleForSymbol = (symbol: string, duration: duration) => {
   open Fetch
   open Js.Promise2
-  let to = (Js.Date.now() /. 1000.0) -> Belt.Int.fromFloat
-  let weekendFactor = switch Js.Date.make() -> Js.Date.getDay -> Belt.Int.fromFloat {
-  | 6 => 2 // if its saturday return 2 days worth of data
-  | 0 => 3 // if its sunday return 3 days worth of data
-  | _ => 1 // any other day just return 24 hours worth of data
-  }
-  Js.Console.log(`weekend factor: ${weekendFactor -> Belt.Int.toString}`)
-  let from = switch res {
-  | ONE_MINUTE
-  | FIVE_MINUTES
-  | FIFTEEN_MINUTES
-  | THIRTY_MINUTES
-  | SIXTY_MINUTES => to - (weekendFactor * 24 * 60 * 60) // 3 days ago
-  | DAY => to - ((7 + weekendFactor) * 24 * 60 * 60) // one week ago
-  | WEEK => to - 4 * 7 * 24 * 60 * 60 // 4 weeks ago
-  | MONTH => to - 365 * 24 * 60 * 60 // 1 year ago
-  }
-  
-  `${Env.apiUrl}/stock/candle?symbol=${symbol}&resolution=${getResolutionString(res)}&from=${from -> Belt.Int.toString}&to=${to -> Belt.Int.toString}&token=${Env.apiKey}`
+  let to = calculateToDate()
+  let from = calculateFromDate(to, duration)
+
+  `${Env.apiUrl}/stock/candle?symbol=${symbol}&resolution=${getResolutionString(duration)}&from=${(from /. 1000.) -> Belt.Float.toString}&to=${(to /. 1000.) -> Belt.Float.toString}&token=${Env.apiKey}`
   -> get
   -> then (Response.json)
   -> then (json => parseResponse(json, symbol) -> resolve)

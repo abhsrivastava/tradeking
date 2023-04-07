@@ -1,5 +1,5 @@
 @react.component
-let make = (~symbol, ~chartData) => {
+let make = (~symbol, ~chartData, ~setDuration) => {
   open ApexCharts
   let options = {
     chart: {
@@ -14,10 +14,10 @@ let make = (~symbol, ~chartData) => {
       }
     },
     dataLabels: {
-      enabled: false
+      enabled: true
     },
     stroke: {
-      curve: "straight"
+      curve: "smooth"
     },
 
     title: {
@@ -49,10 +49,21 @@ let make = (~symbol, ~chartData) => {
     data: chartData -> Belt.Array.map(((_, y)) => y)
   }]
 
+  let handleClick = (duration, _) => {
+    setDuration(_ => duration)
+  }
+
   <div className="app">
     <div className="row">
       <div className="mixed-chart">
         <Chart options series />
+      </div>
+      <div>
+        <button onClick={handleClick(Candles.ONE_DAY)}>{"24 Hours" -> React.string}</button>
+        <button onClick={handleClick(Candles.ONE_WEEK)}>{"1 Week" -> React.string}</button>
+        <button onClick={handleClick(Candles.ONE_MONTH)}>{"1 Month" -> React.string}</button>
+        <button onClick={handleClick(Candles.ONE_YEAR)}>{"1 Year" -> React.string}</button>
+        <button onClick={handleClick(Candles.FIVE_YEARS)}>{"5 Years" -> React.string}</button>
       </div>
     </div>
   </div>
