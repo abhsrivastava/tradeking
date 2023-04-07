@@ -55,9 +55,9 @@ let make = (~symbol, ~chartData, ~duration, ~setDuration) => {
 
   let getButtonStyle = (btnDuration) => {
     if (duration == btnDuration) {
-      "btn btn-primary"
+      "btn btn-primary m-1"
     } else {
-      "btn btn-outline-primary"
+      "btn btn-outline-primary m-1"
     }
   }
   <div className="app">
