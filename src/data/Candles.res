@@ -85,6 +85,7 @@ let calculateFromDate = (toDate: float, duration: duration) => {
 let rec getCandleForSymbol = (symbol: string, duration: duration, subtract: int) => {
   open Fetch
   open Js.Promise2
+  if (subtract < 5 ) {
   let to = calculateToDate() -. (subtract -> Belt.Int.toFloat *. one_day)
   let from = calculateFromDate(to, duration)
   `${Env.apiUrl}/stock/candle?symbol=${symbol}&resolution=${getResolutionString(duration)}&from=${(from /. 1000.) -> Belt.Float.toString}&to=${(to /. 1000.) -> Belt.Float.toString}&token=${Env.apiKey}`
@@ -96,4 +97,7 @@ let rec getCandleForSymbol = (symbol: string, duration: duration, subtract: int)
     | None => getCandleForSymbol(symbol, duration, subtract + 1)
     }
   })
+  } else {
+    Js.log("retry count > 5 terminating application"); failwith("application fails at 5 retries")
+  }
 }
