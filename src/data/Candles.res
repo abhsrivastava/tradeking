@@ -57,12 +57,13 @@ let parseResponse = (json, symbol) : candleResponse => {
 let getCandleForSymbol = (symbol: string, res: resolution) => {
   open Fetch
   open Js.Promise2
-  let to = (Js.Date.now() /. 1000.0) -> Js.Math.floor_int
+  let to = (Js.Date.now() /. 1000.0) -> Belt.Int.fromFloat
   let weekendFactor = switch Js.Date.make() -> Js.Date.getDay -> Belt.Int.fromFloat {
   | 6 => 2 // if its saturday return 2 days worth of data
   | 0 => 3 // if its sunday return 3 days worth of data
   | _ => 1 // any other day just return 24 hours worth of data
   }
+  Js.Console.log(`weekend factor: ${weekendFactor -> Belt.Int.toString}`)
   let from = switch res {
   | ONE_MINUTE
   | FIVE_MINUTES

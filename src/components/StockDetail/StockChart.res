@@ -8,6 +8,9 @@ let make = (~symbol, ~chartData) => {
       width: 300,
       zoom: {
         enabled: false
+      },
+      animations: {
+        speed: 1300
       }
     },
     dataLabels: {
@@ -18,16 +21,20 @@ let make = (~symbol, ~chartData) => {
     },
 
     title: {
-      text: "Fundamental Analysis of Stocks",
-      align: "left"
-    },
-    subtitle: {
-      text: "Price Movements",
+      text: symbol,
       align: "left"
     },
     labels: chartData -> Belt.Array.map(((x, _)) => x),
     xaxis: {
       axisType: "datetime",
+      labels: {
+        datetimeUTC: false
+      }
+    },
+    tooltip: {
+      x: {
+        format: "MMM dd HH:MM"
+      }
     },
     yaxis: {
       opposite: true

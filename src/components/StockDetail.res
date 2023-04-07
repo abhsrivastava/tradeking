@@ -5,7 +5,7 @@ let make = (~symbol) => {
     open Js.Promise2
     Candles.getCandleForSymbol(symbol, Candles.SIXTY_MINUTES)
     -> then (response => response.timeStamps -> Belt.Array.zip(response.closePrices) -> resolve)
-    -> then(tupArray => tupArray -> Belt.Array.map(((x, y)) => (x * 1000, y)) -> resolve) // convert the tuple back into object and convert to milliseconds
+    -> then(tupArray => tupArray -> Belt.Array.map(((x, y)) => (x -> Belt.Int.toFloat *. 1000.0, y)) -> resolve) // convert the tuple back into object and convert to milliseconds
     -> then(recordArray => setChartData(_ => recordArray) -> resolve) 
     -> ignore
     None
