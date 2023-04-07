@@ -1,7 +1,7 @@
 @react.component
-let make = (~quotes, ~addToWatchList) => {
+let make = (~quotes, ~addToWatchList, ~removeFromWatchList) => {
   <div>
     <AutoComplete addToWatchList />
-    <StockList quotes />
+    <StockList quotes removeFromWatchList />
   </div>
 }

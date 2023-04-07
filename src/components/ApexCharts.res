@@ -39,7 +39,12 @@ type yaxis = {
 type legend = {
   horizontalAlign: string
 }
+type fill = {
+  colors: array<string>,
+  @as("type") fillType: string
+}
 type options = {
+  fill: fill,
   chart: chart,
   dataLabels: enabled,
   stroke: stroke,

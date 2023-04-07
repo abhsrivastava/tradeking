@@ -1,7 +1,7 @@
 open ReactIcons
 
 @react.component
-let make = (~quotes : array<Quote.quote>) => {
+let make = (~quotes : array<Quote.quote>, ~removeFromWatchList) => {
   let columns = ["Name", "Last", "Chg", "Chg%", "High", "Low", "Open", "Pclose"]
   let getTextColor = (val: float) : string => {
     if val < 0.0 {
@@ -19,6 +19,10 @@ let make = (~quotes : array<Quote.quote>) => {
   }
   let handleClick = (symbol, _) => {
     RescriptReactRouter.push(`/detail/${symbol}`)
+  }
+  let removeSymbol = (symbol, event) => {
+    event->ReactEvent.Mouse.stopPropagation
+    removeFromWatchList(symbol)
   }
   <div>
     <table className="table hover mt-5 w-100">
@@ -44,7 +48,7 @@ let make = (~quotes : array<Quote.quote>) => {
           <td>{quote.dayHigh -> Belt.Float.toString -> React.string}</td>
           <td>{quote.dayLow -> Belt.Float.toString -> React.string}</td>
           <td>{quote.dayOpen -> Belt.Float.toString -> React.string}</td>
-          <td>{quote.previousClosePrice -> Belt.Float.toString -> React.string}</td>
+          <td>{quote.previousClosePrice -> Belt.Float.toString -> React.string}<button className="btn btn-danger btn-sm delete-button ml-3 d-inline-block" onClick={removeSymbol(quote.symbol)}>{"Remove" -> React.string}</button></td>
           </tr>)
         -> React.array
       }

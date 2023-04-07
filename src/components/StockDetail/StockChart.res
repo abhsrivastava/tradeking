@@ -1,7 +1,15 @@
 @react.component
 let make = (~symbol, ~chartData, ~duration, ~setDuration) => {
+  let index = chartData -> Js.Array.length
+  let first = chartData -> Js.Array.unsafe_get(0) -> snd
+  let last = chartData -> Js.Array.unsafe_get(index - 1) -> snd
+  let color  = if (last -. first > 0.) {"#26C281"} else {"#ED3419"}
   open ApexCharts
   let options = {
+    fill: {
+      colors: [color],
+      fillType: "solid"
+    },
     chart: {
       chartType: "area",
       height: 300,
@@ -19,7 +27,6 @@ let make = (~symbol, ~chartData, ~duration, ~setDuration) => {
     stroke: {
       curve: "smooth"
     },
-
     title: {
       text: symbol,
       align: "left"
